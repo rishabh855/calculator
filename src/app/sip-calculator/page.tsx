@@ -13,6 +13,7 @@ export default function SIPCalculator() {
   const [totalInvested, setTotalInvested] = useState<number>(0);
   const [estimatedReturns, setEstimatedReturns] = useState<number>(0);
   const [totalValue, setTotalValue] = useState<number>(0);
+  const [error, setError] = useState<string | null>(null);
 
   // Load saved inputs on mount
   useEffect(() => {
@@ -43,12 +44,39 @@ export default function SIPCalculator() {
     const r = Number(rate); // annual interest rate
     const n = Number(tenure); // tenure in years
 
-    if (p <= 0 || r <= 0 || n <= 0) {
+    if (investment === '' || rate === '' || tenure === '') {
+      setError(null);
       setTotalInvested(0);
       setEstimatedReturns(0);
       setTotalValue(0);
       return;
     }
+
+    if (p <= 0) {
+      setError('Monthly investment must be greater than 0.');
+      setTotalInvested(0);
+      setEstimatedReturns(0);
+      setTotalValue(0);
+      return;
+    }
+
+    if (r <= 0 || r > 100) {
+      setError('Expected return rate must be between 0.1 and 100.');
+      setTotalInvested(0);
+      setEstimatedReturns(0);
+      setTotalValue(0);
+      return;
+    }
+
+    if (n <= 0 || n > 100) {
+      setError('Time period must be between 1 and 100 years.');
+      setTotalInvested(0);
+      setEstimatedReturns(0);
+      setTotalValue(0);
+      return;
+    }
+
+    setError(null);
 
     const i = r / 100 / 12; // monthly rate of return
     const months = n * 12; // total number of months
@@ -67,6 +95,7 @@ export default function SIPCalculator() {
     setInvestment('');
     setRate('');
     setTenure('');
+    setError(null);
   };
 
   const formatCurrency = (val: number) => {
@@ -136,6 +165,12 @@ export default function SIPCalculator() {
           <div className="card" style={{ display: 'flex', flexDirection: 'column' }}>
             <h2 style={{ fontSize: '1.25rem', marginBottom: '1.5rem' }}>Calculation Result</h2>
             
+            {error && (
+              <div style={{ color: '#ef4444', backgroundColor: '#fef2f2', padding: '0.75rem', borderRadius: '0.5rem', marginBottom: '1.5rem', border: '1px solid #f87171', fontSize: '0.875rem' }}>
+                {error}
+              </div>
+            )}
+
             <div className="result-box" style={{ flexGrow: 1, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div className="result-item" style={{ borderBottom: 'none', padding: 0 }}>
                 <span className="result-label" style={{ fontSize: '1.125rem' }}>Total Value</span>

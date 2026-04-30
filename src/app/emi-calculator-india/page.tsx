@@ -14,6 +14,7 @@ export default function EMICalculator() {
   const [emi, setEmi] = useState<number>(0);
   const [totalInterest, setTotalInterest] = useState<number>(0);
   const [totalPayment, setTotalPayment] = useState<number>(0);
+  const [error, setError] = useState<string | null>(null);
 
   // Load saved inputs on mount
   useEffect(() => {
@@ -45,12 +46,39 @@ export default function EMICalculator() {
     const r = Number(rate);
     const t = Number(tenure);
 
-    if (p <= 0 || r <= 0 || t <= 0) {
+    if (principal === '' || rate === '' || tenure === '') {
+      setError(null);
       setEmi(0);
       setTotalInterest(0);
       setTotalPayment(0);
       return;
     }
+
+    if (p <= 0) {
+      setError('Loan amount must be greater than 0.');
+      setEmi(0);
+      setTotalInterest(0);
+      setTotalPayment(0);
+      return;
+    }
+
+    if (r <= 0 || r > 100) {
+      setError('Interest rate must be between 0.1 and 100.');
+      setEmi(0);
+      setTotalInterest(0);
+      setTotalPayment(0);
+      return;
+    }
+
+    if (t <= 0 || (tenureType === 'yr' && t > 100) || (tenureType === 'mo' && t > 1200)) {
+      setError('Please enter a valid loan tenure (max 100 years).');
+      setEmi(0);
+      setTotalInterest(0);
+      setTotalPayment(0);
+      return;
+    }
+
+    setError(null);
 
     const monthlyRate = r / 12 / 100;
     const months = tenureType === 'yr' ? t * 12 : t;
@@ -71,6 +99,7 @@ export default function EMICalculator() {
     setEmi(0);
     setTotalInterest(0);
     setTotalPayment(0);
+    setError(null);
   };
 
   const formatCurrency = (val: number) => {
@@ -152,6 +181,12 @@ export default function EMICalculator() {
           <div className="card" style={{ display: 'flex', flexDirection: 'column' }}>
             <h2 style={{ fontSize: '1.25rem', marginBottom: '1.5rem' }}>Calculation Result</h2>
             
+            {error && (
+              <div style={{ color: '#ef4444', backgroundColor: '#fef2f2', padding: '0.75rem', borderRadius: '0.5rem', marginBottom: '1.5rem', border: '1px solid #f87171', fontSize: '0.875rem' }}>
+                {error}
+              </div>
+            )}
+
             <div className="result-box" style={{ flexGrow: 1, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div className="result-item" style={{ borderBottom: 'none', padding: 0 }}>
                 <span className="result-label" style={{ fontSize: '1.125rem' }}>Monthly EMI</span>

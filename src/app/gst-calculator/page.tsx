@@ -13,6 +13,7 @@ export default function GSTCalculator() {
   const [gstAmount, setGstAmount] = useState<number>(0);
   const [netAmount, setNetAmount] = useState<number>(0);
   const [totalAmount, setTotalAmount] = useState<number>(0);
+  const [error, setError] = useState<string | null>(null);
 
   // Load saved inputs on mount
   useEffect(() => {
@@ -42,12 +43,31 @@ export default function GSTCalculator() {
     const amt = Number(amount);
     const rate = Number(gstRate);
 
-    if (amt <= 0 || rate < 0) {
+    if (amount === '') {
+      setError(null);
       setGstAmount(0);
       setNetAmount(0);
       setTotalAmount(0);
       return;
     }
+
+    if (amt <= 0) {
+      setError('Amount must be greater than 0.');
+      setGstAmount(0);
+      setNetAmount(0);
+      setTotalAmount(0);
+      return;
+    }
+
+    if (rate < 0 || rate > 100) {
+      setError('GST rate must be between 0 and 100.');
+      setGstAmount(0);
+      setNetAmount(0);
+      setTotalAmount(0);
+      return;
+    }
+
+    setError(null);
 
     if (isInclusive) {
       // GST is already included in the amount
@@ -71,6 +91,7 @@ export default function GSTCalculator() {
     setAmount('');
     setGstRate(18);
     setIsInclusive(false);
+    setError(null);
   };
 
   const formatCurrency = (val: number) => {
@@ -148,6 +169,12 @@ export default function GSTCalculator() {
           <div className="card" style={{ display: 'flex', flexDirection: 'column' }}>
             <h2 style={{ fontSize: '1.25rem', marginBottom: '1.5rem' }}>Calculation Result</h2>
             
+            {error && (
+              <div style={{ color: '#ef4444', backgroundColor: '#fef2f2', padding: '0.75rem', borderRadius: '0.5rem', marginBottom: '1.5rem', border: '1px solid #f87171', fontSize: '0.875rem' }}>
+                {error}
+              </div>
+            )}
+
             <div className="result-box" style={{ flexGrow: 1, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div className="result-item">
                 <span className="result-label">Net Amount (without GST)</span>

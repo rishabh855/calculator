@@ -11,6 +11,7 @@ export default function DiscountCalculator() {
 
   const [finalPrice, setFinalPrice] = useState<number>(0);
   const [savings, setSavings] = useState<number>(0);
+  const [error, setError] = useState<string | null>(null);
 
   // Load saved inputs on mount
   useEffect(() => {
@@ -39,12 +40,28 @@ export default function DiscountCalculator() {
     const p = Number(price);
     const d = Number(discount);
 
-    if (p <= 0 || d < 0) {
+    if (price === '' || discount === '') {
+      setError(null);
       setFinalPrice(0);
       setSavings(0);
       return;
     }
 
+    if (p < 0) {
+      setError('Original price cannot be negative.');
+      setFinalPrice(0);
+      setSavings(0);
+      return;
+    }
+
+    if (d < 0 || d > 100) {
+      setError('Discount percentage must be between 0 and 100.');
+      setFinalPrice(0);
+      setSavings(0);
+      return;
+    }
+
+    setError(null);
     const calculatedSavings = p * (d / 100);
     const calculatedFinalPrice = p - calculatedSavings;
 
@@ -55,6 +72,7 @@ export default function DiscountCalculator() {
   const handleReset = () => {
     setPrice('');
     setDiscount('');
+    setError(null);
   };
 
   const formatCurrency = (val: number) => {
@@ -126,6 +144,12 @@ export default function DiscountCalculator() {
           <div className="card" style={{ display: 'flex', flexDirection: 'column' }}>
             <h2 style={{ fontSize: '1.25rem', marginBottom: '1.5rem' }}>Calculation Result</h2>
             
+            {error && (
+              <div style={{ color: '#ef4444', backgroundColor: '#fef2f2', padding: '0.75rem', borderRadius: '0.5rem', marginBottom: '1.5rem', border: '1px solid #f87171', fontSize: '0.875rem' }}>
+                {error}
+              </div>
+            )}
+
             <div className="result-box" style={{ flexGrow: 1, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div className="result-item" style={{ borderBottom: 'none', padding: 0 }}>
                 <span className="result-label" style={{ fontSize: '1.125rem' }}>Final Price</span>
