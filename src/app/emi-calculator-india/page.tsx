@@ -1,246 +1,98 @@
-'use client';
-
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { RefreshCw, ArrowLeft } from 'lucide-react';
+import { Metadata } from 'next';
 import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react';
+import EmiCalculatorClient from '@/components/calculators/EmiCalculatorClient';
 
-export default function EMICalculator() {
-  const [principal, setPrincipal] = useState<number | ''>('');
-  const [rate, setRate] = useState<number | ''>('');
-  const [tenure, setTenure] = useState<number | ''>('');
-  const [tenureType, setTenureType] = useState<'yr' | 'mo'>('yr');
+export const metadata: Metadata = {
+  title: 'EMI Calculator India – Calculate Home, Car & Personal Loan EMI',
+  description: 'Free EMI Calculator for India. Instantly calculate Equated Monthly Installment (EMI) for home, car, or personal loans. View total interest and payment schedule.',
+  alternates: {
+    canonical: '/emi-calculator-india',
+  },
+};
 
-  const [emi, setEmi] = useState<number>(0);
-  const [totalInterest, setTotalInterest] = useState<number>(0);
-  const [totalPayment, setTotalPayment] = useState<number>(0);
-  const [error, setError] = useState<string | null>(null);
-
-  // Load saved inputs on mount
-  useEffect(() => {
-    const saved = localStorage.getItem('emi-inputs');
-    if (saved) {
-      try {
-        const { p, r, t, type } = JSON.parse(saved);
-        if (p) setPrincipal(p);
-        if (r) setRate(r);
-        if (t) setTenure(t);
-        if (type) setTenureType(type);
-      } catch (e) {
-        // ignore
-      }
-    }
-  }, []);
-
-  // Calculate whenever inputs change
-  useEffect(() => {
-    calculateEMI();
-    // Save to localstorage
-    localStorage.setItem('emi-inputs', JSON.stringify({
-      p: principal, r: rate, t: tenure, type: tenureType
-    }));
-  }, [principal, rate, tenure, tenureType]);
-
-  const calculateEMI = () => {
-    const p = Number(principal);
-    const r = Number(rate);
-    const t = Number(tenure);
-
-    if (principal === '' || rate === '' || tenure === '') {
-      setError(null);
-      setEmi(0);
-      setTotalInterest(0);
-      setTotalPayment(0);
-      return;
-    }
-
-    if (p <= 0) {
-      setError('Loan amount must be greater than 0.');
-      setEmi(0);
-      setTotalInterest(0);
-      setTotalPayment(0);
-      return;
-    }
-
-    if (r <= 0 || r > 100) {
-      setError('Interest rate must be between 0.1 and 100.');
-      setEmi(0);
-      setTotalInterest(0);
-      setTotalPayment(0);
-      return;
-    }
-
-    if (t <= 0 || (tenureType === 'yr' && t > 100) || (tenureType === 'mo' && t > 1200)) {
-      setError('Please enter a valid loan tenure (max 100 years).');
-      setEmi(0);
-      setTotalInterest(0);
-      setTotalPayment(0);
-      return;
-    }
-
-    setError(null);
-
-    const monthlyRate = r / 12 / 100;
-    const months = tenureType === 'yr' ? t * 12 : t;
-
-    const calculatedEmi = p * monthlyRate * (Math.pow(1 + monthlyRate, months) / (Math.pow(1 + monthlyRate, months) - 1));
-    const calculatedTotalPayment = calculatedEmi * months;
-    const calculatedTotalInterest = calculatedTotalPayment - p;
-
-    setEmi(calculatedEmi);
-    setTotalPayment(calculatedTotalPayment);
-    setTotalInterest(calculatedTotalInterest);
-  };
-
-  const handleReset = () => {
-    setPrincipal('');
-    setRate('');
-    setTenure('');
-    setEmi(0);
-    setTotalInterest(0);
-    setTotalPayment(0);
-    setError(null);
-  };
-
-  const formatCurrency = (val: number) => {
-    return '₹' + Math.round(val).toLocaleString('en-IN');
+export default function EMICalculatorPage() {
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: 'EMI Calculator India',
+    url: 'https://calculator-kappa-inky-48.vercel.app/emi-calculator-india', // Update this with your actual domain later
+    applicationCategory: 'FinanceApplication',
+    operatingSystem: 'All',
+    description: 'Calculate your Equated Monthly Installment (EMI) for home, car, or personal loans instantly in India.',
   };
 
   return (
     <div className="container" style={{ maxWidth: '900px' }}>
-      <title>EMI Calculator India – Calculate Loan EMI Instantly</title>
-      <meta name="description" content="Free EMI Calculator to calculate your Equated Monthly Installment for Home, Car or Personal Loans in India. Know your total interest and payment schedule." />
-
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary)', marginBottom: '1rem', fontWeight: 500, transition: 'color 0.2s ease' }} onMouseOver={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onMouseOut={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      
+      <div>
+        <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary)', marginBottom: '1rem', fontWeight: 500, transition: 'color 0.2s ease' }}>
           <ArrowLeft size={18} /> Back to Home
         </Link>
-        <h1 className="text-center mb-4">EMI Calculator</h1>
+        <h1 className="text-center mb-4">EMI Calculator India</h1>
         <p className="text-center mb-8">Calculate your Equated Monthly Installment (EMI) for home, car, or personal loans instantly.</p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-          <div className="card">
-            <h2 style={{ fontSize: '1.25rem', marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between' }}>
-              Loan Details
-              <button onClick={handleReset} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }} title="Reset">
-                <RefreshCw size={18} />
-              </button>
-            </h2>
+        <EmiCalculatorClient />
 
-            <div className="input-group">
-              <label className="input-label">Loan Amount (₹)</label>
-              <input 
-                type="number" 
-                className="input-field" 
-                value={principal} 
-                onChange={(e) => setPrincipal(e.target.value === '' ? '' : Number(e.target.value))}
-                placeholder="e.g. 100000"
-              />
+        <article className="seo-content card mt-8">
+          <section>
+            <h2>What is an EMI Calculator?</h2>
+            <p>An EMI (Equated Monthly Installment) Calculator is a smart financial tool designed to help you calculate the monthly amount payable to a lender (bank or NBFC) against your loan. Whether you are planning to buy a new house, a car, or taking a personal loan for emergencies, calculating your EMI beforehand gives you a clear picture of your monthly financial commitment.</p>
+          </section>
+
+          <section className="mt-6">
+            <h2>How Does the EMI Calculator Work?</h2>
+            <p>Our online EMI Calculator uses a standard mathematical formula to determine your monthly payments. The formula is:</p>
+            <div style={{ backgroundColor: 'var(--bg-primary)', padding: '1rem', borderRadius: '0.5rem', margin: '1rem 0' }}>
+              <strong>E = P × r × (1 + r)^n / ((1 + r)^n - 1)</strong>
             </div>
+            <ul style={{ paddingLeft: '1.5rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
+              <li><strong>E</strong> is the EMI (Equated Monthly Installment).</li>
+              <li><strong>P</strong> is the Principal Loan Amount.</li>
+              <li><strong>r</strong> is the monthly interest rate (Annual Rate / 12 / 100).</li>
+              <li><strong>n</strong> is the loan tenure in months.</li>
+            </ul>
+            <p>Instead of doing these complex calculations manually, our tool instantly provides accurate results, including the total interest payable and the overall cost of the loan.</p>
+          </section>
 
-            <div className="input-group">
-              <label className="input-label">Interest Rate (% p.a.)</label>
-              <input 
-                type="number" 
-                className="input-field" 
-                value={rate} 
-                onChange={(e) => setRate(e.target.value === '' ? '' : Number(e.target.value))}
-                placeholder="e.g. 10.5"
-                step="0.1"
-              />
-            </div>
+          <section className="mt-6">
+            <h2>Benefits of Using Our EMI Calculator</h2>
+            <ul style={{ paddingLeft: '1.5rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
+              <li><strong>Financial Planning:</strong> Knowing your exact monthly outflow helps you plan your budget effectively.</li>
+              <li><strong>Compare Loan Offers:</strong> You can adjust the interest rate and tenure to compare loans from different banks and choose the most cost-effective option.</li>
+              <li><strong>Accuracy and Speed:</strong> Eliminates human error and gives instantaneous results, saving you valuable time.</li>
+              <li><strong>Complete Transparency:</strong> See exactly how much extra money you are paying as interest over the life of the loan.</li>
+            </ul>
+          </section>
 
-            <div className="input-group">
-              <label className="input-label">Loan Tenure</label>
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <input 
-                  type="number" 
-                  className="input-field" 
-                  style={{ flexGrow: 1 }}
-                  value={tenure} 
-                  onChange={(e) => setTenure(e.target.value === '' ? '' : Number(e.target.value))}
-                  placeholder="e.g. 5"
-                />
-                <select 
-                  className="input-field" 
-                  style={{ width: '100px' }}
-                  value={tenureType}
-                  onChange={(e) => setTenureType(e.target.value as 'yr' | 'mo')}
-                >
-                  <option value="yr">Years</option>
-                  <option value="mo">Months</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <div className="card" style={{ display: 'flex', flexDirection: 'column' }}>
-            <h2 style={{ fontSize: '1.25rem', marginBottom: '1.5rem' }}>Calculation Result</h2>
-            
-            {error && (
-              <div style={{ color: '#ef4444', backgroundColor: '#fef2f2', padding: '0.75rem', borderRadius: '0.5rem', marginBottom: '1.5rem', border: '1px solid #f87171', fontSize: '0.875rem' }}>
-                {error}
-              </div>
-            )}
-
-            <div className="result-box" style={{ flexGrow: 1, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <div className="result-item" style={{ borderBottom: 'none', padding: 0 }}>
-                <span className="result-label" style={{ fontSize: '1.125rem' }}>Monthly EMI</span>
-              </div>
-              <motion.div 
-                key={emi}
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ type: 'spring', stiffness: 200, damping: 10 }}
-                className="result-value highlight"
-                style={{ fontSize: '2.5rem', marginBottom: '1rem' }}
-              >
-                {formatCurrency(emi)}
-              </motion.div>
-
-              <div style={{ borderTop: '1px solid var(--border-color)', margin: '0.5rem 0' }}></div>
-
-              <div className="result-item">
-                <span className="result-label">Principal Amount</span>
-                <span className="result-value">{formatCurrency(Number(principal) || 0)}</span>
-              </div>
+          <section className="mt-6">
+            <h2>Frequently Asked Questions (FAQs)</h2>
+            <div style={{ marginTop: '1rem' }}>
+              <h3 style={{ fontSize: '1.125rem', fontWeight: 600 }}>1. Does the EMI amount change during the loan tenure?</h3>
+              <p>If you opt for a fixed interest rate loan, your EMI remains constant throughout the tenure. However, if you choose a floating interest rate, your EMI or loan tenure may change based on the RBI repo rate adjustments and your bank's policies.</p>
               
-              <div className="result-item">
-                <span className="result-label">Total Interest</span>
-                <span className="result-value">{formatCurrency(totalInterest)}</span>
-              </div>
-              
-              <div className="result-item">
-                <span className="result-label">Total Amount</span>
-                <span className="result-value">{formatCurrency(totalPayment)}</span>
-              </div>
+              <h3 style={{ fontSize: '1.125rem', fontWeight: 600, marginTop: '1rem' }}>2. Can I prepay my loan to reduce my EMI?</h3>
+              <p>Yes, making a partial prepayment reduces your outstanding principal. You can then choose to either reduce your monthly EMI amount or shorten your remaining loan tenure while keeping the EMI the same.</p>
+
+              <h3 style={{ fontSize: '1.125rem', fontWeight: 600, marginTop: '1rem' }}>3. How can I lower my loan EMI?</h3>
+              <p>You can lower your EMI by opting for a longer loan tenure, negotiating a lower interest rate with your lender, or making a larger down payment upfront to reduce the principal loan amount.</p>
             </div>
-          </div>
-        </div>
+          </section>
 
-        <div className="card mt-8">
-          <h3>How EMI is Calculated?</h3>
-          <p>The mathematical formula for calculating EMI is: <strong>EMI = [P x R x (1+R)^N]/[(1+R)^N-1]</strong></p>
-          <ul style={{ paddingLeft: '1.5rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
-            <li><strong>P</strong> stands for the Principal amount.</li>
-            <li><strong>R</strong> stands for the interest rate per month.</li>
-            <li><strong>N</strong> stands for the number of monthly installments.</li>
-          </ul>
-
-          <h3>Frequently Asked Questions</h3>
-          <div style={{ marginTop: '1rem' }}>
-            <h4 style={{ fontSize: '1rem', fontWeight: 600 }}>What is an EMI?</h4>
-            <p>Equated Monthly Installment (EMI) is the amount payable every month to the bank or any other financial institution until the loan amount is fully paid off.</p>
-            
-            <h4 style={{ fontSize: '1rem', fontWeight: 600 }}>Does EMI change during the loan tenure?</h4>
-            <p>If you opt for a fixed interest rate, the EMI remains the same. If you opt for a floating interest rate, your EMI may change based on market dynamics.</p>
-          </div>
-        </div>
-      </motion.div>
+          <section className="mt-8 border-t pt-6" style={{ borderTop: '1px solid var(--border-color)', paddingTop: '1.5rem' }}>
+            <h2>Try Our Other Financial Calculators</h2>
+            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginTop: '1rem' }}>
+              <Link href="/gst-calculator" style={{ color: 'var(--accent-color)', fontWeight: 500, textDecoration: 'underline' }}>GST Calculator</Link>
+              <Link href="/sip-calculator" style={{ color: 'var(--accent-color)', fontWeight: 500, textDecoration: 'underline' }}>SIP Calculator</Link>
+              <Link href="/discount-calculator" style={{ color: 'var(--accent-color)', fontWeight: 500, textDecoration: 'underline' }}>Discount Calculator</Link>
+            </div>
+          </section>
+        </article>
+      </div>
     </div>
   );
 }

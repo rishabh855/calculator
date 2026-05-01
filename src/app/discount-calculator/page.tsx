@@ -1,201 +1,98 @@
-'use client';
-
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { RefreshCw, ArrowLeft } from 'lucide-react';
+import { Metadata } from 'next';
 import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react';
+import DiscountCalculatorClient from '@/components/calculators/DiscountCalculatorClient';
 
-export default function DiscountCalculator() {
-  const [price, setPrice] = useState<number | ''>('');
-  const [discount, setDiscount] = useState<number | ''>('');
+export const metadata: Metadata = {
+  title: 'Discount Calculator Online – Calculate Final Price & Savings',
+  description: 'Free Discount Calculator to quickly find out the final price after applying a percentage discount. Know exactly how much money you are saving instantly.',
+  alternates: {
+    canonical: '/discount-calculator',
+  },
+};
 
-  const [finalPrice, setFinalPrice] = useState<number>(0);
-  const [savings, setSavings] = useState<number>(0);
-  const [error, setError] = useState<string | null>(null);
-
-  // Load saved inputs on mount
-  useEffect(() => {
-    const saved = localStorage.getItem('discount-inputs');
-    if (saved) {
-      try {
-        const { p, d } = JSON.parse(saved);
-        if (p) setPrice(p);
-        if (d) setDiscount(d);
-      } catch (e) {
-        // ignore
-      }
-    }
-  }, []);
-
-  // Calculate whenever inputs change
-  useEffect(() => {
-    calculateDiscount();
-    // Save to localstorage
-    localStorage.setItem('discount-inputs', JSON.stringify({
-      p: price, d: discount
-    }));
-  }, [price, discount]);
-
-  const calculateDiscount = () => {
-    const p = Number(price);
-    const d = Number(discount);
-
-    if (price === '' || discount === '') {
-      setError(null);
-      setFinalPrice(0);
-      setSavings(0);
-      return;
-    }
-
-    if (p < 0) {
-      setError('Original price cannot be negative.');
-      setFinalPrice(0);
-      setSavings(0);
-      return;
-    }
-
-    if (d < 0 || d > 100) {
-      setError('Discount percentage must be between 0 and 100.');
-      setFinalPrice(0);
-      setSavings(0);
-      return;
-    }
-
-    setError(null);
-    const calculatedSavings = p * (d / 100);
-    const calculatedFinalPrice = p - calculatedSavings;
-
-    setSavings(calculatedSavings);
-    setFinalPrice(calculatedFinalPrice);
-  };
-
-  const handleReset = () => {
-    setPrice('');
-    setDiscount('');
-    setError(null);
-  };
-
-  const formatCurrency = (val: number) => {
-    return '₹' + val.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+export default function DiscountCalculatorPage() {
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: 'Discount Calculator',
+    url: 'https://calculator-kappa-inky-48.vercel.app/discount-calculator', // Update this with your actual domain later
+    applicationCategory: 'FinanceApplication',
+    operatingSystem: 'All',
+    description: 'Find out the final price after discount and exactly how much money you save.',
   };
 
   return (
     <div className="container" style={{ maxWidth: '900px' }}>
-      <title>Discount Calculator – Calculate Final Price & Savings</title>
-      <meta name="description" content="Free discount calculator to quickly find out the final price after applying a percentage discount and know exactly how much you are saving." />
-
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary)', marginBottom: '1rem', fontWeight: 500, transition: 'color 0.2s ease' }} onMouseOver={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onMouseOut={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      
+      <div>
+        <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary)', marginBottom: '1rem', fontWeight: 500, transition: 'color 0.2s ease' }}>
           <ArrowLeft size={18} /> Back to Home
         </Link>
         <h1 className="text-center mb-4">Discount Calculator</h1>
         <p className="text-center mb-8">Find out the final price after discount and exactly how much money you save.</p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-          <div className="card">
-            <h2 style={{ fontSize: '1.25rem', marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between' }}>
-              Price Details
-              <button onClick={handleReset} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }} title="Reset">
-                <RefreshCw size={18} />
-              </button>
-            </h2>
+        <DiscountCalculatorClient />
 
-            <div className="input-group">
-              <label className="input-label">Original Price (₹)</label>
-              <input 
-                type="number" 
-                className="input-field" 
-                value={price} 
-                onChange={(e) => setPrice(e.target.value === '' ? '' : Number(e.target.value))}
-                placeholder="e.g. 1000"
-              />
+        <article className="seo-content card mt-8">
+          <section>
+            <h2>What is a Discount Calculator?</h2>
+            <p>A Discount Calculator is a handy financial tool used to calculate the final price of an item or service after applying a percentage-based discount. Whether you are shopping during a holiday sale, buying groceries, or running a retail store, knowing the exact amount you save and the final price to pay is essential for smart budgeting.</p>
+          </section>
+
+          <section className="mt-6">
+            <h2>How to Calculate a Discount?</h2>
+            <p>Calculating a discount manually involves two simple mathematical steps. However, our calculator automates this for instant results. Here are the formulas used:</p>
+            <div style={{ backgroundColor: 'var(--bg-primary)', padding: '1rem', borderRadius: '0.5rem', margin: '1rem 0' }}>
+              <strong>Savings = (Original Price × Discount %) / 100</strong><br />
+              <strong>Final Price = Original Price - Savings</strong>
             </div>
-
-            <div className="input-group">
-              <label className="input-label">Discount Percentage (%)</label>
-              <input 
-                type="number" 
-                className="input-field" 
-                value={discount} 
-                onChange={(e) => setDiscount(e.target.value === '' ? '' : Number(e.target.value))}
-                placeholder="e.g. 20"
-                step="0.1"
-                max="100"
-              />
-              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.75rem' }}>
-                {[10, 15, 20, 30, 50].map(rate => (
-                  <button
-                    key={rate}
-                    onClick={() => setDiscount(rate)}
-                    className={discount === rate ? 'btn-primary' : 'btn-secondary'}
-                    style={{ padding: '0.25rem 0.5rem', flex: 1, minWidth: '40px', fontSize: '0.75rem' }}
-                  >
-                    {rate}%
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <div className="card" style={{ display: 'flex', flexDirection: 'column' }}>
-            <h2 style={{ fontSize: '1.25rem', marginBottom: '1.5rem' }}>Calculation Result</h2>
             
-            {error && (
-              <div style={{ color: '#ef4444', backgroundColor: '#fef2f2', padding: '0.75rem', borderRadius: '0.5rem', marginBottom: '1.5rem', border: '1px solid #f87171', fontSize: '0.875rem' }}>
-                {error}
-              </div>
-            )}
+            <p><strong>Example:</strong> If a smartphone costs ₹15,000 and has a 20% discount on it:</p>
+            <ul style={{ paddingLeft: '1.5rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
+              <li><strong>Savings</strong> = (15,000 × 20) / 100 = ₹3,000</li>
+              <li><strong>Final Price</strong> = 15,000 - 3,000 = ₹12,000</li>
+            </ul>
+          </section>
 
-            <div className="result-box" style={{ flexGrow: 1, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <div className="result-item" style={{ borderBottom: 'none', padding: 0 }}>
-                <span className="result-label" style={{ fontSize: '1.125rem' }}>Final Price</span>
-              </div>
-              <motion.div 
-                key={finalPrice}
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ type: 'spring', stiffness: 200, damping: 10 }}
-                className="result-value highlight"
-                style={{ fontSize: '2.5rem', marginBottom: '1rem' }}
-              >
-                {formatCurrency(finalPrice)}
-              </motion.div>
+          <section className="mt-6">
+            <h2>Benefits of Using a Discount Calculator</h2>
+            <ul style={{ paddingLeft: '1.5rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
+              <li><strong>Smart Shopping:</strong> Quickly evaluate sale offers and verify if a "Flat 50% Off" is actually a good deal.</li>
+              <li><strong>Budgeting:</strong> Helps you manage your expenses better by knowing exactly what you'll pay at checkout.</li>
+              <li><strong>Saves Time:</strong> No need to do mental math or open a generic calculator app; just input the numbers and get the exact discount amount.</li>
+              <li><strong>Business Use:</strong> Useful for shopkeepers and business owners to quickly quote final prices to customers during sales.</li>
+            </ul>
+          </section>
 
-              <div style={{ borderTop: '1px solid var(--border-color)', margin: '0.5rem 0' }}></div>
-
-              <div className="result-item">
-                <span className="result-label">Original Price</span>
-                <span className="result-value" style={{ textDecoration: 'line-through', color: 'var(--text-muted)' }}>{formatCurrency(Number(price) || 0)}</span>
-              </div>
+          <section className="mt-6">
+            <h2>Frequently Asked Questions (FAQs)</h2>
+            <div style={{ marginTop: '1rem' }}>
+              <h3 style={{ fontSize: '1.125rem', fontWeight: 600 }}>1. How do I calculate a double discount?</h3>
+              <p>A double discount (e.g., 20% off + an extra 10% off) is not calculated by adding the percentages (it's NOT 30% off). First, calculate the 20% off the original price. Then, take that new discounted price and calculate the 10% off of it. The final number is your actual price.</p>
               
-              <div className="result-item">
-                <span className="result-label">You Save</span>
-                <span className="result-value" style={{ color: '#10b981' }}>{formatCurrency(savings)}</span>
-              </div>
+              <h3 style={{ fontSize: '1.125rem', fontWeight: 600, marginTop: '1rem' }}>2. Is this calculator free to use?</h3>
+              <p>Yes, our discount calculator is completely free, ad-free, and works instantly without needing to refresh the page.</p>
+
+              <h3 style={{ fontSize: '1.125rem', fontWeight: 600, marginTop: '1rem' }}>3. Can I use this for markup calculation?</h3>
+              <p>This calculator is specifically designed for discounts (price reductions). A markup is an increase in the original price, which requires adding the percentage instead of subtracting it.</p>
             </div>
-          </div>
-        </div>
+          </section>
 
-        <div className="card mt-8">
-          <h3>How to calculate a discount?</h3>
-          <p>Calculating a discount is simple. Here is the formula used:</p>
-          <ul style={{ paddingLeft: '1.5rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
-            <li><strong>Savings</strong> = (Original Price × Discount Percentage) / 100</li>
-            <li><strong>Final Price</strong> = Original Price - Savings</li>
-          </ul>
-
-          <h3>Example:</h3>
-          <p>If an item originally costs ₹1000 and is on sale for 20% off:</p>
-          <ul style={{ paddingLeft: '1.5rem', color: 'var(--text-secondary)' }}>
-            <li>Savings = (1000 × 20) / 100 = ₹200</li>
-            <li>Final Price = 1000 - 200 = ₹800</li>
-          </ul>
-        </div>
-      </motion.div>
+          <section className="mt-8 border-t pt-6" style={{ borderTop: '1px solid var(--border-color)', paddingTop: '1.5rem' }}>
+            <h2>Try Our Other Financial Calculators</h2>
+            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginTop: '1rem' }}>
+              <Link href="/emi-calculator-india" style={{ color: 'var(--accent-color)', fontWeight: 500, textDecoration: 'underline' }}>EMI Calculator</Link>
+              <Link href="/gst-calculator" style={{ color: 'var(--accent-color)', fontWeight: 500, textDecoration: 'underline' }}>GST Calculator</Link>
+              <Link href="/sip-calculator" style={{ color: 'var(--accent-color)', fontWeight: 500, textDecoration: 'underline' }}>SIP Calculator</Link>
+            </div>
+          </section>
+        </article>
+      </div>
     </div>
   );
 }

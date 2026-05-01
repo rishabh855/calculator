@@ -17,6 +17,7 @@ export default function Navbar() {
     { name: 'GST Calc', href: '/gst-calculator' },
     { name: 'SIP Calc', href: '/sip-calculator' },
     { name: 'Discount', href: '/discount-calculator' },
+    { name: 'Attendance', href: '/attendance-calculator-india' },
   ];
 
   return (

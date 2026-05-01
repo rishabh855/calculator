@@ -4,6 +4,7 @@ import { ThemeProvider } from '../components/ThemeProvider';
 import Navbar from '../components/Navbar';
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://calculator-kappa-inky-48.vercel.app'),
   title: 'SmartCalc India – Daily Life Calculators',
   description: 'A modern, fast, and simple suite of calculators for Indian users including EMI, GST, SIP, and Discount calculators.',
   keywords: 'EMI calculator india, GST calculator, SIP calculator, discount calculator, financial tools, personal finance',
