@@ -19,12 +19,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <Script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5404184676899178"
-          crossOrigin="anonymous"
-          strategy="afterInteractive"
-        />
+        <meta name="google-adsense-account" content="ca-pub-5404184676899178" />
       </head>
       <body>
         <ThemeProvider>
@@ -32,8 +27,8 @@ export default function RootLayout({
           <main style={{ minHeight: 'calc(100vh - 4rem)', padding: '2rem 0' }}>
             {children}
           </main>
-          <footer style={{ 
-            backgroundColor: 'var(--bg-secondary)', 
+          <footer style={{
+            backgroundColor: 'var(--bg-secondary)',
             borderTop: '1px solid var(--border-color)',
             padding: '2rem 0',
             textAlign: 'center',
